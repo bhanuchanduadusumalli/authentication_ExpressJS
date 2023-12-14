@@ -39,11 +39,31 @@ app.post("/register", async (request, response) => {
       const insertUser = `insert into user(username,name,password,gender,location)
             values('${username}','${name}','${hashedPassword}','${gender}','${location}')`;
       await db.run(insertUser);
-      //response.send(200);
+      response.status(200);
       response.send("User created successfully");
     }
   } else {
     response.status(400);
     response.send("User already exists");
+  }
+});
+
+//Post request
+app.post("/login", async (request, response) => {
+  const { username, password } = request.body;
+  const getUser = `select * from user where username='${username}'`;
+  const dbUser = await db.get(getUser);
+  if (dbUser === undefined) {
+    response.status(400);
+    response.send("Invalid user");
+  } else {
+    const isPasswordMatched = await bcrypt.compare(password, dbUser.password);
+    if (isPasswordMatched === true) {
+      response.status(200);
+      response.send("Login success!");
+    } else {
+      response.status(400);
+      response.send("Invalid password");
+    }
   }
 });
