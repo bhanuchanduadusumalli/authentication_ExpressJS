@@ -79,8 +79,9 @@ app.put("/change-password", async (request, response) => {
       response.status(400);
       response.send("Password is too short");
     } else {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
       const updatePassQuery = `update user
-            set password='${newPassword}'
+            set password='${hashedPassword}'
             where
             username='${username}'`;
       await db.run(updatePassQuery);
@@ -89,6 +90,8 @@ app.put("/change-password", async (request, response) => {
     }
   } else {
     response.status(400);
-    response.send("Invalid password");
+    response.send("Invalid current password");
   }
 });
+
+module.exports = app;
